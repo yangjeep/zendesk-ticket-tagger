@@ -1,4 +1,4 @@
-module github.com/searchspring/zendesk-ticket-tagger
+module github.com/yangjeep/zendesk-ticket-tagger
 
 go 1.23
 
@@ -8,7 +8,7 @@ require (
 	golang.org/x/tools v0.29.0
 )
 
-replace github.com/yangjeep/zendesk-ticket-tagger/tools => ./util/tools
+replace github.com/yangjeep/zendesk-ticket-tagger/tools => ./tools
 
 replace github.com/yangjeep/zendesk-ticket-tagger/config => ./config
 
