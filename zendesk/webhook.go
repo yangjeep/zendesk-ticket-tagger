@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/yangjeep/zendesk-ticket-tagger/config"
@@ -38,7 +39,7 @@ type WebhookRequest struct {
 
 type WebhookResponse struct {
 	Webhook struct {
-		ID     int64  `json:"id"`
+		ID     string `json:"id"`
 		Status string `json:"status"`
 	} `json:"webhook"`
 	Error struct {
@@ -54,6 +55,11 @@ func RegisterWebhook(cfg *config.Config, endpoint, webhookName, bearerToken stri
 	webhookReq := WebhookRequest{}
 	webhookReq.Webhook.Name = webhookName
 	webhookReq.Webhook.Status = "active"
+
+	// Ensure the endpoint uses HTTPS
+	if !strings.HasPrefix(endpoint, "https://") {
+		return fmt.Errorf("webhook endpoint must use HTTPS: %s", endpoint)
+	}
 	webhookReq.Webhook.Endpoint = endpoint
 	webhookReq.Webhook.HTTPMethod = "POST"
 	webhookReq.Webhook.RequestFormat = "json"
@@ -122,7 +128,7 @@ func RegisterWebhook(cfg *config.Config, endpoint, webhookName, bearerToken stri
 		return fmt.Errorf("webhook created but not active, status: %s", webhookResp.Webhook.Status)
 	}
 
-	log.Infof("Successfully registered webhook (ID: %d) with status: %s",
+	log.Infof("Successfully registered webhook (ID: %s) with status: %s",
 		webhookResp.Webhook.ID,
 		webhookResp.Webhook.Status)
 	return nil

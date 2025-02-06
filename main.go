@@ -21,7 +21,7 @@ func main() {
 	cfg := config.Load()
 
 	// Register webhook before starting server
-	webhookURL := fmt.Sprintf("http://%s:%d%s", cfg.WebhookHost, cfg.WebhookPort, cfg.WebhookEndpoint)
+	webhookURL := fmt.Sprintf("https://%s:%d%s", cfg.WebhookHost, cfg.WebhookPort, cfg.WebhookEndpoint)
 	if err := zendesk.RegisterWebhook(
 		cfg,
 		webhookURL,
