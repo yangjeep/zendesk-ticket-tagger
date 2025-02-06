@@ -1,4 +1,12 @@
 run:
-  go: "1.22"
+  go: "1.23"
 linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - gofmt
+    - goimports
+    - staticcheck
 linters-settings:
+  errcheck:
+    check-blank: true

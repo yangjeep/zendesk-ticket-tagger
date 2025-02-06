@@ -1,11 +1,13 @@
-module github.com/searchspring/golang-api-template
+module github.com/searchspring/zendesk-ticket-tagger
 
-go 1.23.1
+go 1.23
 
 require (
 	github.com/golangci/golangci-lint v1.63.4
 	golang.org/x/tools v0.29.0
 )
+
+replace github.com/searchspring/zendesk-ticket-tagger/internal/tools => ./util/tools
 
 require (
 	4d63.com/gocheckcompilerdirectives v1.2.1 // indirect

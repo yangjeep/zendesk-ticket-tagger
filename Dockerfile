@@ -1,7 +1,7 @@
 ########################
 # STEP 1 build go binary
 ########################
-FROM golang:1.22.2-bullseye as builder
+FROM golang:1.23.6-bullseye as builder
 RUN apt-get update && apt-get install -yq build-essential
 WORKDIR /app
 COPY . .

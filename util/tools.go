@@ -1,7 +1,7 @@
 //go:build tools
 // +build tools
 
-package tools
+package util
 
 // Tools not imported in the module but still required should be
 // added here so that they are still tracked inside go.mod
