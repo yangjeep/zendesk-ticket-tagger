@@ -4,10 +4,13 @@ go 1.23
 
 require (
 	github.com/golangci/golangci-lint v1.63.4
+	github.com/joho/godotenv v1.5.1
 	golang.org/x/tools v0.29.0
 )
 
-replace github.com/searchspring/zendesk-ticket-tagger/internal/tools => ./util/tools
+replace github.com/yangjeep/zendesk-ticket-tagger/tools => ./util/tools
+
+replace github.com/yangjeep/zendesk-ticket-tagger/config => ./config
 
 require (
 	4d63.com/gocheckcompilerdirectives v1.2.1 // indirect

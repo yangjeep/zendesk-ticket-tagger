@@ -1,12 +1,20 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/yangjeep/zendesk-ticket-tagger/config"
 )
 
 func main() {
+	cfg := config.Load()
+
+	// Now you can use the configuration
+	fmt.Printf("Server running on port %d\n", cfg.ServerPort)
+
 	s := http.Server{
 		Addr:         "0.0.0.0:1234",
 		ReadTimeout:  60 * time.Second,

@@ -32,3 +32,5 @@ tmp
 **/utilities/*.go
 **/types/*.go
 **/common/*.go
+
+.env
