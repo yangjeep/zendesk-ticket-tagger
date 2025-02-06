@@ -1,0 +1,4 @@
+run:
+  go: "1.22"
+linters:
+linters-settings:

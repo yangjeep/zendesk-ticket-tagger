@@ -1,0 +1,19 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker' # Build
+    entrypoint: 'bash'
+    args: [
+        '-c',
+        'docker build -t gcr.io/$PROJECT_ID/$REPO_NAME:$TAG_NAME --build-arg TOKEN=$$TOKEN . --file=./Dockerfile'
+    ]
+    secretEnv:
+      - 'TOKEN'
+  - name: 'gcr.io/cloud-builders/docker' # Push
+    args: [ 'push', 'gcr.io/$PROJECT_ID/$REPO_NAME:$TAG_NAME' ]
+
+images:
+  - 'gcr.io/$PROJECT_ID/$REPO_NAME:$TAG_NAME'
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/searchspring-devops/secrets/machine-user-github-token/versions/latest
+      env: 'TOKEN'

@@ -1,0 +1,157 @@
+name: cicd
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  setup:
+    name: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    strategy:
+      matrix:
+        go: [stable]
+      fail-fast: true
+    steps:
+      - name: Configure git to access private repos
+        run: git config --global url."https://${{ secrets.SS_READONLY_TOKEN }}:x-oauth-basic@github.com".insteadOf "https://github.com"
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+          check-latest: true
+          cache: true
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    strategy:
+      matrix:
+        go: [stable]
+      fail-fast: true
+    needs: setup
+    steps:
+      - name: Configure git to access private repos
+        run: git config --global url."https://${{ secrets.SS_READONLY_TOKEN }}:x-oauth-basic@github.com".insteadOf "https://github.com"
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+          check-latest: true
+          cache: true
+      - name: Run go mod tidy
+        run: go mod tidy
+      - name: Run go generate
+        run: go generate ./... && git diff --exit-code
+      - name: Run go build
+        run: go build -o /dev/null ./...
+
+  clean:
+    name: clean
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    strategy:
+      matrix:
+        go: [stable]
+      fail-fast: true
+    needs: setup
+    steps:
+      - name: Configure git to access private repos
+        run: git config --global url."https://${{ secrets.SS_READONLY_TOKEN }}:x-oauth-basic@github.com".insteadOf "https://github.com"
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+          check-latest: true
+          cache: true
+      - name: Run go mod tidy
+        run: go mod tidy && git diff --exit-code
+      - name: Run go mod verify
+        run: go mod verify
+      - name: Run formatting
+        run: go run golang.org/x/tools/cmd/goimports -w . && git diff --exit-code
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    strategy:
+      matrix:
+        go: [stable]
+      fail-fast: true
+    needs: setup
+    steps:
+      - name: Configure git to access private repos
+        run: git config --global url."https://${{ secrets.SS_READONLY_TOKEN }}:x-oauth-basic@github.com".insteadOf "https://github.com"
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+          check-latest: true
+          cache: true
+      - name: Run go linting
+        uses: golangci/golangci-lint-action@v5
+        with:
+          version: latest
+          args: --timeout=4m
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    strategy:
+      matrix:
+        go: [stable]
+      fail-fast: true
+    needs: setup
+    steps:
+      - name: Configure git to access private repos
+        run: git config --global url."https://${{ secrets.SS_READONLY_TOKEN }}:x-oauth-basic@github.com".insteadOf "https://github.com"
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+          check-latest: true
+          cache: true
+      - name: Run tests
+        run: go test -shuffle=on -v -count=1 -race -failfast -timeout=30s -short -covermode=atomic -coverprofile=coverage.out ./...
+
+  benchmark:
+    name: benchmark
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    strategy:
+      matrix:
+        go: [stable]
+      fail-fast: true
+    needs: setup
+    steps:
+      - name: Configure git to access private repos
+        run: git config --global url."https://${{ secrets.SS_READONLY_TOKEN }}:x-oauth-basic@github.com".insteadOf "https://github.com"
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+          check-latest: true
+          cache: true
+      - name: Run benchmarks
+        run: go test -v -shuffle=on -run=- -bench=. -benchtime=1x -timeout=10s ./...

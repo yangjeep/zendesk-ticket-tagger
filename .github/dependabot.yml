@@ -1,0 +1,22 @@
+version: 2
+
+updates:
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "14:00" # 02:00pm UTC
+    registries:
+      - github-searchspring-machine
+    groups: # https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#groups
+      all-dependencies:
+        patterns:
+          - "*"
+
+registries:
+  github-searchspring-machine:
+    type: git
+    url: https://github.com
+    username: x-access-token
+    password: ${{ secrets.SS_READONLY_TOKEN }}
