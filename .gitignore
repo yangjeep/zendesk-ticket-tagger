@@ -33,4 +33,6 @@ tmp
 **/types/*.go
 **/common/*.go
 
+
 .env
+zendesk-ticket-tagger

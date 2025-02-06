@@ -10,11 +10,18 @@ import (
 )
 
 type Config struct {
-	ServerPort     int
-	DatabaseURL    string
-	Environment    string
-	LogLevel       string
-	AllowedOrigins []string
+	ServerPort        int
+	Environment       string
+	LogLevel          string
+	AllowedOrigins    []string
+	PrometheusEnabled bool
+	PrometheusPath    string
+	ZendeskSubdomain  string
+	ZendeskToken      string
+	ZendeskEmail      string
+	WebhookEndpoint   string
+	WebhookHost       string
+	WebhookPort       int
 }
 
 // Load reads the configuration from .env file and environment variables
@@ -24,12 +31,23 @@ func Load() *Config {
 		log.Printf("Warning: .env file not found, using environment variables")
 	}
 
+	serverPort := getEnvAsInt("SERVER_PORT", 8080)
+	webhookEndpoint := getEnv("WEBHOOK_ENDPOINT", "/webhook")
+	webhookPort := getEnvAsInt("WEBHOOK_PORT", serverPort)
+
 	config := &Config{
-		ServerPort:     getEnvAsInt("SERVER_PORT", 8080),
-		DatabaseURL:    getEnv("DATABASE_URL", ""),
-		Environment:    getEnv("ENVIRONMENT", "development"),
-		LogLevel:       getEnv("LOG_LEVEL", "info"),
-		AllowedOrigins: getEnvAsSlice("ALLOWED_ORIGINS", []string{"http://localhost:3000"}),
+		ServerPort:        serverPort,
+		Environment:       getEnv("ENVIRONMENT", "development"),
+		LogLevel:          getEnv("LOG_LEVEL", "info"),
+		AllowedOrigins:    getEnvAsSlice("ALLOWED_ORIGINS", []string{"http://localhost:3000"}),
+		PrometheusEnabled: getEnvAsBool("PROMETHEUS_ENABLED", true),
+		PrometheusPath:    getEnv("PROMETHEUS_PATH", "/metrics"),
+		ZendeskSubdomain:  getEnv("ZENDESK_SUBDOMAIN", ""),
+		ZendeskToken:      getEnv("ZENDESK_TOKEN", ""),
+		ZendeskEmail:      getEnv("ZENDESK_EMAIL", ""),
+		WebhookEndpoint:   webhookEndpoint,
+		WebhookHost:       getEnv("WEBHOOK_HOST", "0.0.0.0"),
+		WebhookPort:       webhookPort,
 	}
 
 	return config
@@ -59,4 +77,13 @@ func getEnvAsSlice(key string, defaultVal []string) []string {
 		return defaultVal
 	}
 	return strings.Split(valueStr, ",")
+}
+
+// getEnvAsBool reads an environment variable as a boolean with a default value
+func getEnvAsBool(key string, defaultVal bool) bool {
+	valueStr := getEnv(key, "")
+	if value, err := strconv.ParseBool(valueStr); err == nil {
+		return value
+	}
+	return defaultVal
 }

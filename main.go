@@ -2,29 +2,38 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"net/http"
-	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/yangjeep/zendesk-ticket-tagger/config"
+	"github.com/yangjeep/zendesk-ticket-tagger/server"
+	"github.com/yangjeep/zendesk-ticket-tagger/zendesk"
 )
 
 func main() {
+	// Initialize logger
+	logger := logrus.New()
+	// Configure logger settings if needed
+	logger.SetLevel(logrus.DebugLevel) // Set to debug level to see the webhook details
+
+	// Initialize the global logger in zendesk package
+	zendesk.InitLogger(logger)
+
 	cfg := config.Load()
 
-	// Now you can use the configuration
-	fmt.Printf("Server running on port %d\n", cfg.ServerPort)
-
-	s := http.Server{
-		Addr:         "0.0.0.0:1234",
-		ReadTimeout:  60 * time.Second,
-		WriteTimeout: 60 * time.Second,
-		IdleTimeout:  120 * time.Second,
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			_, _ = w.Write([]byte("hello world"))
-		}),
+	// Register webhook before starting server
+	webhookURL := fmt.Sprintf("http://%s:%d%s", cfg.WebhookHost, cfg.WebhookPort, cfg.WebhookEndpoint)
+	if err := zendesk.RegisterWebhook(
+		cfg,
+		webhookURL,
+		"Ticket Tagger Webhook",
+		cfg.ZendeskToken,
+	); err != nil {
+		logger.Fatalf("Failed to register webhook: %v", err)
 	}
+	logger.Infof("Successfully registered webhook at %s", webhookURL)
 
-	log.Printf("Listening at http://%s", s.Addr)
-	log.Fatal(s.ListenAndServe())
+	// Start the server
+	if err := server.Start(cfg); err != nil {
+		logger.Fatalf("Failed to start server: %v", err)
+	}
 }
