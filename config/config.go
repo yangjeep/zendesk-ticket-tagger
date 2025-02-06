@@ -31,12 +31,8 @@ func Load() *Config {
 		log.Printf("Warning: .env file not found, using environment variables")
 	}
 
-	serverPort := getEnvAsInt("SERVER_PORT", 8080)
-	webhookEndpoint := getEnv("WEBHOOK_ENDPOINT", "/webhook")
-	webhookPort := getEnvAsInt("WEBHOOK_PORT", serverPort)
-
 	config := &Config{
-		ServerPort:        serverPort,
+		ServerPort:        getEnvAsInt("SERVER_PORT", 8080),
 		Environment:       getEnv("ENVIRONMENT", "development"),
 		LogLevel:          getEnv("LOG_LEVEL", "info"),
 		AllowedOrigins:    getEnvAsSlice("ALLOWED_ORIGINS", []string{"http://localhost:3000"}),
@@ -45,9 +41,9 @@ func Load() *Config {
 		ZendeskSubdomain:  getEnv("ZENDESK_SUBDOMAIN", ""),
 		ZendeskToken:      getEnv("ZENDESK_TOKEN", ""),
 		ZendeskEmail:      getEnv("ZENDESK_EMAIL", ""),
-		WebhookEndpoint:   webhookEndpoint,
+		WebhookEndpoint:   getEnv("WEBHOOK_ENDPOINT", "/webhook"),
 		WebhookHost:       getEnv("WEBHOOK_HOST", "0.0.0.0"),
-		WebhookPort:       webhookPort,
+		WebhookPort:       getEnvAsInt("WEBHOOK_PORT", getEnvAsInt("SERVER_PORT", 8080)),
 	}
 
 	return config
